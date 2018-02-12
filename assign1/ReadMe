@@ -1,0 +1,18 @@
+Group - 5
+Lexer
+----------------------------------
+Abhimanyu (150013)
+Shresth Soni (150691)
+Shubhojyoti Nath (150708)
+------------------------------------
+
+To build the implementation:
+1.Run 'make' in assign1 directory
+
+To clean the bin folder:
+1.Run 'make clean' in assign1 directory
+
+To test the lexer:
+1. Run 'bin/lexer test/test1.cs' in assign1 directory.
+
+[NOTE: Source of implementation is in 'src' directory which is a 'lexer.l' (a lex file). Running 'make' generated 'lexer' executable and 'lex.yy.c' which is removed after compilation]
