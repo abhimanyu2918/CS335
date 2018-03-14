@@ -6,12 +6,12 @@
 int yyerror(char *);
 int yylex(void);
 FILE *f;
-
+extern int LINE_NO;
 typedef struct Node
 {
-	char *s;
-	struct Node *next;
-	struct Node *prev;
+    char *s;
+    struct Node *next;
+    struct Node *prev;
 } Node;
 
 Node *head;
@@ -36,8 +36,8 @@ void pushNode(Node** head_ref, char* str)
     Node* new_node = (Node*) malloc(sizeof(Node));
  
     new_node->s  = strdup(str);
- 	new_node->next = NULL;
- 	new_node->prev = NULL;
+    new_node->next = NULL;
+    new_node->prev = NULL;
     Node *t;
     t = *head_ref;
     if(t==NULL){
@@ -114,8 +114,8 @@ int isNonTerminal(char *s){
 %%
 
 Block_or_Semi: 
-            Block 	{fprintf(f,"Block_or_Semi Block 0\n");}
-            | ';'	{fprintf(f,"Block_or_Semi ; 0\n");}
+            Block   {fprintf(f,"Block_or_Semi Block 0\n");}
+            | ';'   {fprintf(f,"Block_or_Semi ; 0\n");}
             ;
 
 
@@ -124,11 +124,11 @@ Literal:
             |  token_false {fprintf(f,"Literal token_false 0\n");}
             |  token_dec_literal {fprintf(f,"Literal token_dec_literal 0\n");}
             |  token_char_literal       {fprintf(f,"Literal token_char_literal 0\n");}
-			;
+            ;
 
 Print_Stm:
             token_print Print_Args ';' {fprintf(f,"Print_Stm token_print Print_Args ; 0\n");}
-            ;	
+            ;   
 
 Print_Args: 
             Print_Arg '+' Print_Args {fprintf(f,"Print_Args Print_Arg + Print_Args 0\n");}
@@ -297,13 +297,13 @@ Normal_Stm:
             |  token_continue ';' {fprintf(f,"Normal_Stm token_continue ; 0\n");}
             |  token_return Expression_Opt ';' {fprintf(f,"Normal_Stm token_return Expression_Opt ; 0\n");}
             |  Statement_Exp ';'        {fprintf(f,"Normal_Stm Statement_Exp ; 0\n");}
-            |  ';'	{fprintf(f,"Normal_Stm ; 0\n");}
+            |  ';'  {fprintf(f,"Normal_Stm ; 0\n");}
             |  Block    {fprintf(f,"Normal_Stm Block 0\n");}
             |  token_switch '(' Expression ')' '{' Switch_Sections_Opt '}' {fprintf(f,"Normal_Stm token_switch ( Expression ) { Switch_Sections_Opt } 0\n");}
             |  Print_Stm {fprintf(f,"Normal_Stm Print_Stm 0\n");}
             ;
 
-Block: 	
+Block:  
             '{' Stm_List '}' {fprintf(f,"Block { Stm_List } 0\n");}
             |  '{' '}' {fprintf(f,"Block { } 0\n");}
             ;
@@ -396,7 +396,7 @@ Field_Dec:
 
 Method_Dec: 
             Type token_identifier '(' Formal_Param_List_Opt ')' Block_or_Semi {fprintf(f,"Method_Dec Type token_identifier ( Formal_Param_List_Opt ) Block_or_Semi 0\n");}
-        	;
+            ;
 Formal_Param_List_Opt: 
             Formal_Param_List {fprintf(f,"Formal_Param_List_Opt Formal_Param_List 0\n");}
             |   {fprintf(f,"Formal_Param_List_Opt 0\n");}
@@ -423,7 +423,7 @@ Variable_Initializer_List:
 
 Switch_Sections_Opt:
              Switch_Sections_Opt Switch_Section {fprintf(f,"Switch_Sections_Opt Switch_Sections_Opt Switch_Section 0\n");}
-            | 	{fprintf(f,"Switch_Sections_Opt 0\n");}
+            |   {fprintf(f,"Switch_Sections_Opt 0\n");}
             ;
 
 Switch_Section:
@@ -443,16 +443,20 @@ Switch_Label:
 
 
 int yyerror(char *s){
-	fprintf(f,"Error: %s\n", s);
-	return 0;
+    printf("%s", s);
+    if(strstr(s,"syntax")!=NULL){
+        printf(" at line %d\n",LINE_NO);
+    }else printf("\n");
+    system("rm parser_temp_file");
+    exit(0);
 }
 
 int main(int argc, char *argv[]){
-	f = fopen("parser_temp_file", "w");
-	yyparse();
-	fclose(f);
-	system("tac parser_temp_file > parser_temp_file2");
-	printf("<html><head>\n<title>Rightmost Derivation</title>\n<head>\n</head>\n<body>\n\n");
+    f = fopen("parser_temp_file", "w");
+    yyparse();
+    fclose(f);
+    system("tac parser_temp_file > parser_temp_file2");
+    printf("<html><head>\n<title>Rightmost Derivation</title>\n<head>\n</head>\n<body>\n\n");
     FILE * fp;
     char * line = NULL;
     size_t len = 0;
@@ -466,8 +470,8 @@ int main(int argc, char *argv[]){
     printf("%d. <font color=\"red\"><u>Compilation_Unit</u></font><br><hr>\n",line_num);
     line_num++;
     while ((read = getline(&line, &len, fp)) != -1) {
-    	printf("%d. <font color=\"blue\">", line_num);
-    	line_num++;
+        printf("%d. <font color=\"blue\">", line_num);
+        line_num++;
         char *word = strtok (line," ");
         Node *t = head; //non terminal that is being expanded
         
@@ -527,6 +531,6 @@ int main(int argc, char *argv[]){
     printf("</body>\n</html>\n");
     system("rm parser_temp_file");
     system("rm parser_temp_file2");
-    exit(EXIT_SUCCESS);	
-	return 0;
+    exit(EXIT_SUCCESS); 
+    return 0;
 }
