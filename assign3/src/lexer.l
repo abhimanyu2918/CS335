@@ -1,6 +1,7 @@
 %{
 	#include "y.tab.h"
 	int yyerror(char *);
+	int LINE_NO=1;
 %}
 
 ws			[ \t]+
@@ -30,6 +31,7 @@ nl 			[\n\r]
 "/*"			{BEGIN MULTI_COMMENT;}
 <SINGLE_COMMENT>\n 	{
                     BEGIN 0;
+                    LINE_NO++;
                     }
 
 <SINGLE_COMMENT>.	{}
@@ -37,7 +39,7 @@ nl 			[\n\r]
                     BEGIN 0;
                     }
 
-<MULTI_COMMENT>[\n\r] {}
+<MULTI_COMMENT>[\n\r] {LINE_NO++;}
 <MULTI_COMMENT>.	{}
 "int"			return token_int;
 "char"			return token_char;
@@ -61,7 +63,10 @@ nl 			[\n\r]
 "continue"		return token_continue;
 "case"			return token_case;
 
-{decnumber}{id} {yyerror("Error");exit(1);}
+{decnumber}{id} {
+				char error_str[30];
+				sprintf(error_str,"Error token at line %d: %s",LINE_NO,yytext);
+	 yyerror(error_str);}
 
 {id}	return token_identifier;
 
@@ -114,8 +119,11 @@ nl 			[\n\r]
 "?"				return *yytext;	
 "~"				return *yytext;
 "="				return *yytext;
-[ \t\n\r]*		;
-.				{yyerror("invalid character");}
+[ \t]*			;
+[\n\r]*			LINE_NO++;
+.				{char error_str[30];
+				sprintf(error_str,"Error token at line %d: %s",LINE_NO,yytext);
+	 yyerror(error_str);}
 
 
 %%
