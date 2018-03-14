@@ -37,6 +37,7 @@ nl 			[\n\r]
 <SINGLE_COMMENT>.	{}
 <MULTI_COMMENT>"*/"	{
                     BEGIN 0;
+                    LINE_NO++;
                     }
 
 <MULTI_COMMENT>[\n\r] {LINE_NO++;}
