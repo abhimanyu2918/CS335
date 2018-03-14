@@ -121,7 +121,7 @@ nl 			[\n\r]
 "~"				return *yytext;
 "="				return *yytext;
 [ \t]*			;
-[\n\r]*			LINE_NO++;
+[\n\r]			LINE_NO++;
 .				{char error_str[30];
 				sprintf(error_str,"Error token at line %d: %s",LINE_NO,yytext);
 	 yyerror(error_str);}
