@@ -1,0 +1,325 @@
+"Start Symbol" = <Compilation Unit>
+
+! ----------------------------------------------------------------- Sets
+
+{ID Head}        = {Letter} + [_]
+{ID Tail}        = {AlphaNumeric} + [_]
+{String Ch}      = {Printable} - ["]
+{Char Ch}        = {Printable} - ['']
+
+! ----------------------------------------------------------------- Terminals
+
+Identifier     = {ID Head} {ID Tail}*   
+
+DecLiteral     = {Digit}+          
+
+StringLiteral  = '"'( {String Ch} | '\'{Printable} )* '"'
+
+! ----------------------------------------------------------------- Comments
+
+Comment Line = '//'
+Comment Start = '/*'
+Comment End = '*/'
+
+! ===========================================================================
+! Shared by multiple sections
+! ===========================================================================
+
+<Block or Semi> ::= <Block> |  ';'
+     
+<Semicolon Opt> ::= ';' |  !Nothing 
+
+! ===========================================================================
+! C.1.8 Literals 
+! ===========================================================================
+
+<Literal> ::= true |  false |  DecLiteral |  StringLiteral       
+			       
+
+! ===========================================================================
+!  Print 
+! ===========================================================================
+<Print Stm> ::= Print <Print Args> ';'
+<Print Args> ::= <Print Args> '+' <Print Arg>
+                | <Print Arg>
+                |
+<Print Arg> ::= StringLiteral  
+                | Identifier 
+                | endl
+
+
+! ===========================================================================
+! C.2.2 Types 
+! ===========================================================================
+
+<Type> ::= <Other Type> | <Base Type> | <Base Type>'['']'
+    
+<Base Type> ::= int | char | bool
+
+<Other Type> ::= void
+
+! ===========================================================================
+! C.2.4 Expressions 
+! ===========================================================================
+
+<Expression Opt> ::= <Expression> |  !Nothing 
+
+<Expression List> ::= <Expression> |  <Expression> ',' <Expression List> 
+
+
+<Expression>
+       ::= <Conditional Exp> '='   <Expression>
+        |  <Conditional Exp> '+='  <Expression>
+        |  <Conditional Exp> '-='  <Expression>
+        |  <Conditional Exp> '*='  <Expression>
+        |  <Conditional Exp> '/='  <Expression>
+        |  <Conditional Exp> '^='  <Expression>
+        |  <Conditional Exp> '&='  <Expression>
+        |  <Conditional Exp> '|='  <Expression>
+        |  <Conditional Exp> '%='  <Expression>
+        |  <Conditional Exp> '<<=' <Expression>
+        |  <Conditional Exp> '>>=' <Expression>
+        |  <Conditional Exp>
+
+<Conditional Exp>      
+       ::= <Or Exp> '?' <Or Exp> ':' <Conditional Exp>
+        |  <Or Exp>
+
+<Or Exp>
+       ::= <Or Exp> '||' <And Exp>
+        |  <And Exp>
+
+<And Exp>
+       ::= <And Exp> '&&' <Logical Or Exp>
+        |  <Logical Or Exp>
+
+<Logical Or Exp>
+       ::= <Logical Or Exp> '|' <Logical Xor Exp>
+        |  <Logical Xor Exp>
+
+<Logical Xor Exp>
+       ::= <Logical Xor Exp> '^' <Logical And Exp>
+        |  <Logical And Exp>
+
+<Logical And Exp>
+       ::= <Logical And Exp> '&' <Equality Exp>
+        |  <Equality Exp>
+
+<Equality Exp>  
+       ::= <Equality Exp> '==' <Compare Exp>
+        |  <Equality Exp> '!=' <Compare Exp>
+        |  <Compare Exp>
+
+<Compare Exp>
+       ::= <Compare Exp> '<'  <Shift Exp>
+        |  <Compare Exp> '>'  <Shift Exp>
+        |  <Compare Exp> '<=' <Shift Exp>
+        |  <Compare Exp> '>=' <Shift Exp>
+        |  <Compare Exp> is <Type>
+        |  <Shift Exp>
+
+<Shift Exp>
+       ::= <Shift Exp> '<<' <Add Exp>
+        |  <Shift Exp> '>>' <Add Exp>
+        |  <Add Exp>
+
+<Add Exp>
+       ::= <Add Exp> '+' <Mult Exp>
+        |  <Add Exp> '-' <Mult Exp>
+        |  <Mult Exp>
+
+<Mult Exp>
+       ::= <Mult Exp> '*' <Unary Exp>  
+        |  <Mult Exp> '/' <Unary Exp>  
+        |  <Mult Exp> '%' <Unary Exp>  
+        |  <Unary Exp>  
+
+<Unary Exp>  
+       ::= '!'  <Unary Exp>
+        |  '~'  <Unary Exp>
+        |  '-'  <Unary Exp>
+        |  '++' <Unary Exp>
+        |  '--' <Unary Exp>
+        |  <Primary Exp>
+
+<Primary Exp>
+       ::=  <Primary>
+        |  '(' <Expression> ')' 
+        |   <Method>
+       
+<Primary>
+       ::= <Identifier>
+        |  <Literal>        
+
+! ===========================================================================
+! Arguments
+! ===========================================================================
+
+<Arg List Opt> ::= <Arg List> |  !Nothing
+       
+<Arg List> ::= <Arg List> ',' <Expression> |  <Expression>
+
+! ===========================================================================
+! C.2.5 Statements 
+! ===========================================================================
+
+<Stm List>
+       ::= <Stm List> <Statement>
+        |  <Statement>
+
+<Statement>
+        ::=  <Local Var Decl> ';'
+        |    <Print Stm>
+        |  if '(' <Expression> ')' <Statement>
+        |  if '(' <Expression> ')' <Then Stm> else <Statement>        
+        |  for '(' <For Init Opt> ';' <For Condition Opt> ';' <For Iterator Opt> ')' <Statement>
+        |  while    '(' <Expression> ')' <Statement>
+        |  <Normal Stm>   
+
+
+<Then Stm>   
+       ::= if       '(' <Expression> ')' <Then Stm> else <Then Stm>        
+        |  for      '(' <For Init Opt> ';' <For Condition Opt> ';' <For Iterator Opt> ')' <Then Stm>
+        |  while    '(' <Expression> ')' <Then Stm>
+        |  <Normal Stm>   
+          
+          
+<Normal Stm>                   
+        ::=  break ';'
+        |  continue ';'
+        |  return <Expression Opt> ';'
+        |  <Statement Exp> ';'        
+        |  ';'
+        |  <Block>    
+        |  switch '(' <Expression> ')' '{' <Switch Sections Opt> '}'
+
+<Block>
+       ::= '{' <Stm List> '}'
+        |  '{' '}' 
+         
+<Variable Decs>
+        ::= <Variable Declarator>
+         |  <Variable Decs> ',' <Variable Declarator>
+
+<Variable Declarator>
+        ::= Identifier
+         |  Identifier '=' <Variable Initializer>
+
+<Variable Initializer>
+        ::= <Expression>
+         |  <Array Initializer>
+
+! ===========================================================================
+! For Clauses
+! ===========================================================================
+
+<For Init Opt>
+        ::= <Local Var Decl>
+         |  <Statement Exp List>
+         |  !Nothing
+
+<For Iterator Opt>
+        ::= <Statement Exp List>
+         |  !Nothing 
+
+<For Condition Opt>
+        ::= <Expression>
+         |  !Nothing 
+
+<Statement Exp List>
+        ::= <Statement Exp List> ',' <Statement Exp>
+         |  <Statement Exp>
+
+
+! ===========================================================================
+! Statement Expressions & Local Variable Declaration
+! ===========================================================================
+
+<Local Var Decl>
+       ::= <Type> <Variable Decs> 
+
+<Statement Exp>
+       ::= <Method>
+        |  <Identifier> <Assign Tail>
+
+<Assign Tail>
+       ::= '++'
+        |  '--'       
+        |  '='   <Expression>
+        |  '+='  <Expression>
+        |  '-='  <Expression>
+        |  '*='  <Expression>
+        |  '/='  <Expression>
+        |  '^='  <Expression>
+        |  '&='  <Expression>
+        |  '|='  <Expression>
+        |  '%='  <Expression>
+        |  '<<=' <Expression>
+        |  '>>=' <Expression>
+
+<Method> ::= Identifier '(' <Arg List Opt> ')' 
+
+! ===========================================================================
+! C.2.6 Compilation Unit (Start)
+! ===========================================================================
+
+<Compilation Unit> ::= <Class Decl> 
+
+
+! ===========================================================================
+! C.2.7 Class
+! ===========================================================================
+
+<Class Decl>
+    ::= class Identifier '{' <Class Item Decs Opt> '}' 
+
+<Class Item Decs Opt>
+       ::= <Class Item Decs Opt> <Class Item>
+        |  !Nothing 
+
+<Class Item> ::=  <Field Dec> |  <Method Dec>
+
+<Field Dec> ::= <Local Var Decl> ';'
+
+<Method Dec>
+       ::= <Type> Identifier '(' <Formal Param List Opt> ')' <Block or Semi>
+        
+<Formal Param List Opt> ::= <Formal Param List> |  !Nothing 
+
+<Formal Param List> ::=<Formal Param> | <Formal Param List>','<Formal Param>
+
+<Formal Param> ::= <Type> Identifier  
+
+! ===========================================================================
+! C.2.9 Arrays 
+! ===========================================================================
+
+<Array Initializer Opt>  ::= <Array Initializer> |  ! NOTHING
+
+<Array Initializer> ::= '{' <Variable Initializer List Opt> '}'
+         |  '{' <Variable Initializer List> '}'
+
+<Variable Initializer List Opt> ::= <Variable Initializer List> | ! Nothing 
+
+<Variable Initializer List> ::= <Variable Initializer>
+        | <Variable Initializer List> ',' <Variable Initializer>
+
+
+!===========================================================================
+!  Switch Clauses
+!===========================================================================
+
+<Switch Sections Opt>
+        ::= <Switch Sections Opt> <Switch Section>
+         |  !Nothing
+
+<Switch Section>
+        ::= <Switch Labels> <Stm List>
+
+<Switch Labels>
+        ::= <Switch Label>
+         |  <Switch Labels> <Switch Label>
+
+<Switch Label>
+        ::= case <Expression> ':'
+         |  default ':'

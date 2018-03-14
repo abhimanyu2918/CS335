@@ -5,7 +5,7 @@
 	void foo(){
 		//do Something
 		Print "Something";
-	}
 	return 1;
+	}
 }
 

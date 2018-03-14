@@ -9,6 +9,10 @@ id			[a-zA-Z_]([_a-zA-Z0-9]*)?
 string		\"([^"\\]|(\\.))*\" 						
 nl 			[\n\r]
 
+%x STRING
+%x IDENTIFIER
+%x SINGLE_COMMENT
+%x MULTI_COMMENT
 
 %%
 \"              { BEGIN STRING; } 
@@ -36,7 +40,7 @@ nl 			[\n\r]
 <MULTI_COMMENT>[\n\r] {}
 <MULTI_COMMENT>.	{}
 "int"			return token_int;
-"char"			return token_char
+"char"			return token_char;
 "bool"			return token_bool;
 "void"			return token_void;
 
@@ -56,9 +60,8 @@ nl 			[\n\r]
 "Print"			return token_print;
 "continue"		return token_continue;
 "case"			return token_case;
-[ \t\n\r]*		;
 
-{decnumber}{id} {yyerror("Error token: %s\n",yytext);exit(1);}
+{decnumber}{id} {yyerror("Error");exit(1);}
 
 {id}	return token_identifier;
 
@@ -79,7 +82,7 @@ nl 			[\n\r]
 "=="		    return token_eq;
 "!="			return token_not_eq;
 "!"				return *yytext;
-"++"			return token_plus_plus
+"++"			return token_plus_plus;
 "+="				return token_plus_assign;
 "+"				return *yytext;
 "--"				return token_minus_minus;
@@ -91,11 +94,11 @@ nl 			[\n\r]
 "&="				return token_bit_and_assign;
 "&"				return *yytext;
 "|"				return *yytext;
-"<<="				return token_shift_left_assign
+"<<="				return token_shift_left_assign;
 "<<"				return token_shift_left;
 "<="				return token_less_eq;
 "<"				return *yytext;    
-"^="				return token token_bit_or_assign;       
+"^="				return token_bit_xor_assign;       
 "^"				return *yytext;              
 "*="				return token_mul_assign;           
 "*"				return *yytext;  
@@ -120,3 +123,4 @@ nl 			[\n\r]
 int yywrap(void) { 		
 	return 1; 
 }
+
