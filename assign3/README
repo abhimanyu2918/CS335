@@ -1,0 +1,19 @@
+Parser for C#
+-------------------------------
+Written by: Abhimanyu, Shresth Soni, Shubhojyoti Nath
+-------------------------------
+
+1. Building the parser
+    ==> Run "mkdir bin" in assign3 directory
+    ==> Run "make"
+    
+    Parser will be generated in bin directory.
+
+2. Running the parser
+    ==> Run "./bin/parser ./test/test1.cs" in assign3 directory
+    
+    This will create "test1.html" in assign3 directory.
+
+3. Cleaning
+    ==> Run "make clean" in assign3 directory.
+    
