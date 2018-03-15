@@ -5,7 +5,8 @@
 #include <string.h>
 int yyerror(char *);
 int yylex(void);
-FILE *f;
+FILE *f,*outFile;
+extern FILE *yyin;
 extern int LINE_NO;
 typedef struct Node
 {
@@ -453,10 +454,29 @@ int yyerror(char *s){
 
 int main(int argc, char *argv[]){
     f = fopen("parser_temp_file", "w");
+    if(argc<2){
+    	printf("Usage: parser <path_to_c#_code>\n");
+    	exit(1);
+    }
+    yyin = fopen(argv[1], "r"); 
+    if (yyin == NULL){
+    	printf("Error: %s does not exist\n",argv[1]);
+        exit(EXIT_FAILURE);
+    }
+    char *path = strtok (argv[1],".");
+    char *name,*temp_name = strtok(path,"/");
+    while(temp_name!=NULL){
+	    name=temp_name;
+	    temp_name = strtok(NULL,"/");
+    }
+    char outFileName[20];
+    sprintf(outFileName,"%s.html",name);
     yyparse();
+    fclose(yyin);
     fclose(f);
     system("tac parser_temp_file > parser_temp_file2");
-    printf("<html><head>\n<title>Rightmost Derivation</title>\n<head>\n</head>\n<body>\n\n");
+    outFile = fopen(outFileName, "w");
+    fprintf(outFile,"<html><head>\n<title>Rightmost Derivation</title>\n<head>\n</head>\n<body>\n\n");
     FILE * fp;
     char * line = NULL;
     size_t len = 0;
@@ -467,10 +487,10 @@ int main(int argc, char *argv[]){
         exit(EXIT_FAILURE);
     int line_num=1;
     pushNode(&head,"Compilation_Unit");
-    printf("%d. <font color=\"red\"><u>Compilation_Unit</u></font><br><hr>\n",line_num);
+    fprintf(outFile,"%d. <font color=\"red\"><u>Compilation_Unit</u></font><br><hr>\n",line_num);
     line_num++;
     while ((read = getline(&line, &len, fp)) != -1) {
-        printf("%d. <font color=\"blue\">", line_num);
+        fprintf(outFile,"%d. <font color=\"blue\">", line_num);
         line_num++;
         char *word = strtok (line," ");
         Node *t = head; //non terminal that is being expanded
@@ -505,30 +525,30 @@ int main(int argc, char *argv[]){
         while(t3!=NULL){
             if(t3==t1){
                 font=1;
-                printf("<font color=\"red\">");
+                fprintf(outFile,"<font color=\"red\">");
             }
             if(t3==t->next){
                 font=0;
-                printf("</font>");
+                fprintf(outFile,"</font>");
             }
             if(t3==t2){
                 u=1;
-                printf("<u><b><mark>");
+                fprintf(outFile,"<u><b><mark>");
             }
-            printf("%s ", t3->s);
+            fprintf(outFile,"%s ", t3->s);
             if(t3==t2){
                 u=0;
-                printf("</mark></b></u>");
+                fprintf(outFile,"</mark></b></u>");
             }
             t3=t3->next;
         }
-        if(u!=0)printf("</b></u>");
-        if(font!=0)printf("</font>");
-        printf("</font><br><hr>\n");
+        if(u!=0)fprintf(outFile,"</b></u>");
+        if(font!=0)fprintf(outFile,"</font>");
+        fprintf(outFile,"</font><br><hr>\n");
     }
-
+    fprintf(outFile,"</body>\n</html>\n");
     fclose(fp);
-    printf("</body>\n</html>\n");
+    fclose(outFile);
     system("rm parser_temp_file");
     system("rm parser_temp_file2");
     exit(EXIT_SUCCESS); 
