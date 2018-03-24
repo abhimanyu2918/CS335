@@ -463,94 +463,17 @@ int main(int argc, char *argv[]){
     	printf("Error: %s does not exist\n",argv[1]);
         exit(EXIT_FAILURE);
     }
-    char *path = strtok (argv[1],".");
-    char *name,*temp_name = strtok(path,"/");
-    while(temp_name!=NULL){
-	    name=temp_name;
-	    temp_name = strtok(NULL,"/");
-    }
-    char outFileName[20];
-    sprintf(outFileName,"%s.html",name);
+    // char *path = strtok (argv[1],".");
+    // char *name,*temp_name = strtok(path,"/");
+    // while(temp_name!=NULL){
+	   //  name=temp_name;
+	   //  temp_name = strtok(NULL,"/");
+    // }
+    // char outFileName[20];
+    // sprintf(outFileName,"%s.html",name);
     yyparse();
     fclose(yyin);
     fclose(f);
-    system("tac parser_temp_file > parser_temp_file2");
-    outFile = fopen(outFileName, "w");
-    fprintf(outFile,"<html><head>\n<title>Rightmost Derivation</title>\n<head>\n</head>\n<body>\n\n");
-    FILE * fp;
-    char * line = NULL;
-    size_t len = 0;
-    ssize_t read;
-
-    fp = fopen("parser_temp_file2", "r");
-    if (fp == NULL)
-        exit(EXIT_FAILURE);
-    int line_num=1;
-    pushNode(&head,"Compilation_Unit");
-    fprintf(outFile,"%d. <font color=\"red\"><u>Compilation_Unit</u></font><br><hr>\n",line_num);
-    line_num++;
-    while ((read = getline(&line, &len, fp)) != -1) {
-        fprintf(outFile,"%d. <font color=\"blue\">", line_num);
-        line_num++;
-        char *word = strtok (line," ");
-        Node *t = head; //non terminal that is being expanded
-        
-        while(t->next != NULL){
-            t=t->next;
-        }
-        while(strcmp(t->s,word)!=0)t=t->prev;
-        word = strtok (NULL, " ");
-        Node *t1=NULL;   //linked list of expansion of t
-        while (word != NULL )
-        {
-            if(strcmp(word,"0\n")==0 || strcmp(word,"0")==0)break;
-            pushNode(&t1, word);
-            word = strtok (NULL, " ");
-        }
-        if(t1==NULL)pushNode(&t1, " ");
-        t1->prev = t->prev;
-        if(t->prev!=NULL)t->prev->next=t1;
-        else head = t1;
-        Node* t2=t1; //t2 is to derived next
-        while(t2->next!=NULL)t2=t2->next;
-        t2->next = t->next;
-        if(t->next!=NULL)t->next->prev=t2;
-        while(t2->next!=NULL)t2=t2->next;
-        while(t2!=NULL){
-            if(isNonTerminal(t2->s)==1)break;
-            t2=t2->prev;
-        }
-        Node *t3=head;
-        int font=0,u=0;
-        while(t3!=NULL){
-            if(t3==t1){
-                font=1;
-                fprintf(outFile,"<font color=\"red\">");
-            }
-            if(t3==t->next){
-                font=0;
-                fprintf(outFile,"</font>");
-            }
-            if(t3==t2){
-                u=1;
-                fprintf(outFile,"<u><b><mark>");
-            }
-            fprintf(outFile,"%s ", t3->s);
-            if(t3==t2){
-                u=0;
-                fprintf(outFile,"</mark></b></u>");
-            }
-            t3=t3->next;
-        }
-        if(u!=0)fprintf(outFile,"</b></u>");
-        if(font!=0)fprintf(outFile,"</font>");
-        fprintf(outFile,"</font><br><hr>\n");
-    }
-    fprintf(outFile,"</body>\n</html>\n");
-    fclose(fp);
-    fclose(outFile);
-    system("rm parser_temp_file");
-    system("rm parser_temp_file2");
     exit(EXIT_SUCCESS); 
     return 0;
 }
