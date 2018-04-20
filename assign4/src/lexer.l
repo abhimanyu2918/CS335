@@ -2,10 +2,11 @@
 	#include "y.tab.h"
 	int yyerror(char *);
 	int LINE_NO=1;
+	//[-+]?
 %}
 
 ws			[ \t]+
-decnumber	[-+]?[0-9]+
+decnumber	[0-9]+
 id			[a-zA-Z_]([_a-zA-Z0-9]*)?
 string		\"([^"\\]|(\\.))*\" 						
 nl 			[\n\r]
@@ -15,17 +16,24 @@ nl 			[\n\r]
 %x SINGLE_COMMENT
 %x MULTI_COMMENT
 
+%{
+	char buf[100]; 
+	char *s;
+%}
 %%
-\"              { BEGIN STRING; } 
-<STRING>\\n     {}           
-<STRING>\\t     {}           
-<STRING>\\\"    {}           
-<STRING>\"      {  
+\"              { BEGIN STRING;s = buf; } 
+<STRING>\\n     { *s++ = '\n';}           
+<STRING>\\t     {*s++ = '\t';}           
+<STRING>\\\"    {*s++ = '\"';}           
+<STRING>\"      {  *s = 0;
+                    sprintf(yylval.string_val,"%s",buf);
                     BEGIN 0;
                 	return token_string_literal;
                 }           
-<STRING>\n      { yyerror("invaid string\n"); exit(1);}
-<STRING>.       {}                
+<STRING>\n      {   char error_str[30];
+					sprintf(error_str,"Line %d: Invalid String",LINE_NO);
+					yyerror(error_str);}
+<STRING>.       {*s++ = *yytext;}                
 
 "//"			{BEGIN SINGLE_COMMENT;}
 "/*"			{BEGIN MULTI_COMMENT;}
@@ -69,10 +77,12 @@ nl 			[\n\r]
 				sprintf(error_str,"Error token at line %d: %s",LINE_NO,yytext);
 	 yyerror(error_str);}
 
-{id}	return token_identifier;
+{id}	{
+	sprintf(yylval.id,"%s",yytext); 
+	return token_identifier;}
 
-"'"."'"		return token_char_literal;
-{decnumber}	return token_dec_literal;
+"'"."'"		{yylval.dec_val=*(yytext+1); return token_char_literal;}
+{decnumber}	{yylval.dec_val=atoi(yytext); return token_dec_literal;}
 
 
 
@@ -91,7 +101,7 @@ nl 			[\n\r]
 "++"			return token_plus_plus;
 "+="				return token_plus_assign;
 "+"				return *yytext;
-"--"				return token_minus_minus;
+"--"				{ return token_minus_minus;}
 "-="				return token_minus_assign;
 "-"				return *yytext;
 "||"				return token_cond_or;

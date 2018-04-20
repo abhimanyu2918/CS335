@@ -7,10 +7,12 @@ class Program {
                 int k = 0;
                 k = k + 1;
             }
+            int k;
             while(num < 100){
                 num = num * 10;
                 while( i > 2) {
                     i = i - 1;
+                    k = 10;
                 }
             }
         }
