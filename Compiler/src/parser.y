@@ -4030,33 +4030,7 @@ Class_Item:
             |  Method_Dec {$$=$1;}
             ;
 
-// struct StructMember{
-//     int type;
-//     char member_name[30];
-//     int arr_size;
-// };
 
-// struct StructMemberList{
-//     struct StructMember memberArray[20];
-//     int memberCount;
-// }
-
-// struct StructDef{
-//     char struct_name[30];
-//     struct StructMember memberArray[20];
-//     int memberCount;
-// };
-
-// struct StructDef structDefArray[20];
-// int structDefArrayIndex=0;
-
-// %token <ptr> Struct_Dec Type_Struct Base_Type_Struct token_struct
-// %token <memberList> Member_Decl
-// %token <memberList> Variable_Decs_Struct
-
-// %union{
-//     struct StructMemberList memberList;
-// }
 
 Struct_Dec: token_struct token_identifier '{' Member_Decl '}' ';' {
                 // printf("here------------- %d\n",$4->memberCount);

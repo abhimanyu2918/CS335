@@ -277,7 +277,8 @@ Comment End = '*/'
        ::= <Class Item Decs Opt> <Class Item>
         |  !Nothing 
 
-<Class Item> ::=  <Field Dec> |  <Method Dec>
+<Class Item> ::=  <Struct_Dec> 
+ 	           |<Field Dec> |  <Method Dec>
 
 <Field Dec> ::= <Local Var Decl> ';'
 
@@ -290,6 +291,27 @@ Comment End = '*/'
 
 <Formal Param> ::= <Type> Identifier  
 
+! ===========================================================================
+! C.2.8 Structs 
+! ===========================================================================
+<Struct_Dec> ::= token_struct token_identifier '{' <Member_Decl> '}' ';' 
+
+<Member_Decl> ::= <Type_Struct> <Variable_Decs_Struct> ';'
+                 | <Member_Decl> <Type_Struct> <Variable_Decs_Struct> ';'
+
+<Type_Struct> ::=
+             <Base_Type_Struct> 
+               | <Base_Type_Struct> '[' token_dec_literal ']'
+
+<Base_Type_Struct> ::=
+            token_int 
+            | token_char
+            | token_bool
+
+<Variable_Decs_Struct> ::=
+            token_identifier
+            |  <Variable_Decs_Struct> ',' token_identifier
+            
 ! ===========================================================================
 ! C.2.9 Arrays 
 ! ===========================================================================
